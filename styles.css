@@ -1,0 +1,252 @@
+:root {
+  --primary-color: #7f3e2a;
+  --primary-light: #bf9486;
+  --primary-dark: #592619;
+  --background: #f2eadd;
+  --text-color: #333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.coffee-calculator {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.control-panel {
+  margin-bottom: 30px;
+}
+
+.input-group, .selector-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+input[type="number"] {
+  width: 70px;
+  padding: 8px;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--primary-color);
+}
+
+button:hover {
+  background-color: #e0e0e0;
+}
+
+button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.weight-input {
+  margin-bottom: 20px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.weight-input button {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+#weight-value {
+  width: 80px;
+  border: none;
+  text-align: right;
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+#weight-value:focus {
+  outline: none;
+}
+
+.totals {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.total-label {
+  font-weight: bold;
+  display: block;
+}
+
+.total-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.results-container {
+  margin-top: 30px;
+}
+
+h2 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+#pour-steps {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.pour-step {
+  position: relative;
+  padding: 15px;
+  color: white;
+  overflow: hidden;
+}
+
+.step-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pour-amount {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.pour-detail {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.pour-time {
+  margin-top: 5px;
+}
+
+.progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: height 0.1s linear;
+}
+
+.stopwatch {
+  background-color: #4a372a;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#timer {
+  font-family: monospace;
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+.stopwatch-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.stopwatch-controls button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.stopwatch-controls button:disabled {
+  background-color: #666;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .totals {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
