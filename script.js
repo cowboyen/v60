@@ -1,6 +1,6 @@
-// Vent til DOM er fullstendig lastet
+// Wait for DOM to fully load
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM-elementer
+    // DOM elements
     const ratioInput = document.getElementById('ratio');
     const coffeeInput = document.getElementById('weight-value');
     const incrementBtn = document.getElementById('increment');
@@ -13,17 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const stopBtn = document.getElementById('stop');
     const resetBtn = document.getElementById('reset');
     
-    // Syrlighetsknapper
+    // Acidity buttons
     const sweetnessBtn = document.getElementById('sweetness');
     const standardAcidityBtn = document.getElementById('standard-acidity');
     const acidityBtn = document.getElementById('acidity');
     
-    // Styrkeknapper
+    // Strength buttons
     const lowerStrengthBtn = document.getElementById('lower-strength');
     const standardStrengthBtn = document.getElementById('standard-strength');
     const higherStrengthBtn = document.getElementById('higher-strength');
     
-    // Tilstandsvariabler
+    // State variables
     let coffeeAmount = 20; // g
     let ratio = 15;
     let waterAmount = 300; // ml
@@ -31,17 +31,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let strengthLevel = 0; // 0: Standard, 1: Lower Strength, 2: Higher Strength
     let pourSteps = [];
     
-    // Stoppeklokke-variabler
+    // Stopwatch variables
     let time = 0;
     let isRunning = false;
     let interval = null;
     let lastTime = Date.now();
     
-    // Initialiser app
+    // Initialize app
     initApp();
     
     function initApp() {
-        // Sett opp event listeners
+        // Set up event listeners
         ratioInput.addEventListener('input', updateCalculations);
         coffeeInput.addEventListener('input', updateFromInput);
         incrementBtn.addEventListener('click', incrementValue);
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         stopBtn.addEventListener('click', stopTimer);
         resetBtn.addEventListener('click', resetTimer);
         
-        // Sett opp syrlighetsknapper
+        // Set up acidity buttons
         sweetnessBtn.addEventListener('click', function() {
             setAcidityLevel(1);
         });
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setAcidityLevel(2);
         });
         
-        // Sett opp styrkeknapper
+        // Set up strength buttons
         lowerStrengthBtn.addEventListener('click', function() {
             setStrengthLevel(1);
         });
@@ -76,11 +76,11 @@ document.addEventListener('DOMContentLoaded', function() {
             setStrengthLevel(2);
         });
         
-        // Sett initielle verdier
+        // Set initial values
         coffeeInput.value = coffeeAmount;
         ratioInput.value = ratio;
         
-        // Kjør innledende beregning
+        // Run initial calculation
         updateCalculations();
     }
     
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setAcidityLevel(level) {
         acidityLevel = level;
         
-        // Oppdaterer UI
+        // Update UI
         [sweetnessBtn, standardAcidityBtn, acidityBtn].forEach(btn => btn.classList.remove('active'));
         
         if (level === 0) standardAcidityBtn.classList.add('active');
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setStrengthLevel(level) {
         strengthLevel = level;
         
-        // Oppdaterer UI
+        // Update UI
         [lowerStrengthBtn, standardStrengthBtn, higherStrengthBtn].forEach(btn => btn.classList.remove('active'));
         
         if (level === 0) standardStrengthBtn.classList.add('active');
@@ -128,114 +128,171 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateCalculations() {
-        // Oppdaterer ratio
+        // Update ratio
         ratio = parseFloat(ratioInput.value) || 15;
         
-        // Beregner vannmengde basert på kaffemengde
+        // Calculate water amount based on coffee amount
         waterAmount = Math.round((coffeeAmount * ratio) * 10) / 10;
         
-        // Oppdaterer totaler
+        // Update totals
         totalCoffee.textContent = coffeeAmount.toFixed(1) + " g";
         totalWater.textContent = waterAmount.toFixed(1) + " ml";
         
-        // Kalkulerer pour steps
+        // Calculate pour steps
         calculatePourSteps();
         
-        // Oppdaterer visning
+        // Update display
         renderPourSteps();
         updateProgressBars();
     }
     
     function calculatePourSteps() {
-        // First 40% - for acidity control (2 pours)
-        const firstPhaseWater = waterAmount * 0.4;
+        // Calculate pour amounts based on acidity and strength settings
+        const pourAmounts = calculatePourAmounts();
         
-        // Remaining 60% - for strength control (3 pours)
-        const secondPhaseWater = waterAmount * 0.6;
+        // Calculate cumulative totals
+        const totalAmounts = calculateTotalAmounts(pourAmounts);
         
-        // Acidity distribution
-        let acidityRatio;
-        switch(acidityLevel) {
-            case 1: // More sweetness
-                acidityRatio = [0.6, 0.4];
-                break;
-            case 2: // More acidity
-                acidityRatio = [0.4, 0.6];
-                break;
-            default: // Standard
-                acidityRatio = [0.5, 0.5];
-        }
+        // Standard colors for steps (extended to 6 steps)
+        const colors = ["#8c5642", "#9d6953", "#a87764", "#b38575", "#bf9486", "#c6a395"];
         
-        // Strength distribution
-        let strengthRatio;
-        switch(strengthLevel) {
-            case 1: // Lower strength
-                strengthRatio = [0.2, 0.3, 0.5];
-                break;
-            case 2: // Higher strength
-                strengthRatio = [0.5, 0.3, 0.2];
-                break;
-            default: // Standard
-                strengthRatio = [0.33, 0.33, 0.34];
-        }
-        
-        // Calculate individual pours
-        const pour1Amount = Math.round(firstPhaseWater * acidityRatio[0]);
-        const pour2Amount = Math.round(firstPhaseWater * acidityRatio[1]);
-        const pour3Amount = Math.round(secondPhaseWater * strengthRatio[0]);
-        const pour4Amount = Math.round(secondPhaseWater * strengthRatio[1]);
-        const pour5Amount = Math.round(secondPhaseWater * strengthRatio[2]);
-        
-        // Calculate cumulative totals (this is where the fix is needed)
-        const pour1Total = pour1Amount;
-        const pour2Total = pour1Total + pour2Amount;
-        const pour3Total = pour2Total + pour3Amount;
-        const pour4Total = pour3Total + pour4Amount;
-        const pour5Total = pour4Total + pour5Amount;
-        
-        // Create pour steps array
-        pourSteps = [
-            {
-                timeStart: "00:00",
-                timeEnd: "00:45",
-                amount: pour1Amount,
-                total: pour1Total,
-                color: "#8c5642"
-            },
-            {
-                timeStart: "00:45",
-                timeEnd: "01:30",
-                amount: pour2Amount,
-                total: pour2Total,
-                color: "#9d6953"
-            },
-            {
-                timeStart: "01:30",
-                timeEnd: "02:15",
-                amount: pour3Amount,
-                total: pour3Total,
-                color: "#a87764"
-            },
-            {
-                timeStart: "02:15",
-                timeEnd: "03:00",
-                amount: pour4Amount,
-                total: pour4Total,
-                color: "#b38575"
-            },
-            {
-                timeStart: "03:00",
-                timeEnd: "03:45",
-                amount: pour5Amount,
-                total: pour5Total,
-                color: "#bf9486"
-            }
+        // Standard times for steps (extended to 6 steps)
+        const times = [
+            { start: "00:00", end: "00:45" },
+            { start: "00:45", end: "01:30" },
+            { start: "01:30", end: "02:15" },
+            { start: "02:15", end: "03:00" },
+            { start: "03:00", end: "03:45" },
+            { start: "03:45", end: "04:30" }
         ];
         
-        // Verifiser at totalene stemmer overens
-        console.log("Pour steps calculated:", pourSteps);
-        console.log("Total water:", waterAmount);
-        console.log("Sum of all pours:", pour1Amount + pour2Amount + pour3Amount + pour4Amount + pour5Amount);
+        // Build pour steps array
+        pourSteps = [];
+        for (let i = 0; i < pourAmounts.length; i++) {
+            pourSteps.push({
+                timeStart: times[i].start,
+                timeEnd: times[i].end,
+                amount: pourAmounts[i],
+                total: totalAmounts[i],
+                color: colors[i]
+            });
+        }
+    }
+    
+    function calculatePourAmounts() {
+        // This function now calculates pour amounts by working with percentages
+        // of total water rather than directly with ml amounts
+        let amounts = [];
+        
+        if (acidityLevel === 1 && strengthLevel === 0) {
+            // More sweetness and standard strength: 5 steps
+            // Example at 30g coffee: 72ml, 180ml, 270ml, 360ml, 450ml
+            // These correspond to 16%, 24%, 20%, 20%, 20% of total water
+            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+        } 
+        else if ((acidityLevel === 0 || acidityLevel === 1) && strengthLevel === 1) {
+            // Standard/More sweetness with lower strength: 4 steps
+            if (acidityLevel === 0) {
+                // Standard acidity and lower strength
+                // Example at 30g coffee: 90ml, 180ml, 315ml, 450ml
+                // These correspond to 20%, 20%, 30%, 30% of total water
+                amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+                amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            } else {
+                // More sweetness and lower strength
+                // Example at 30g coffee: 72ml, 180ml, 315ml, 450ml
+                // These correspond to 16%, 24%, 30%, 30% of total water
+                amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
+                amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
+            }
+            
+            // Lower strength - 2 equal pours for second phase
+            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total (135ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total (135ml at 30g)
+        } 
+        else if (acidityLevel === 2 && strengthLevel === 2) {
+            // More acidity and higher strength: 6 steps
+            // Example at 30g coffee: 108ml, 180ml, 247.5ml, 315ml, 382.5ml, 450ml
+            // These correspond to 24%, 16%, 15%, 15%, 15%, 15% of total water
+            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
+            
+            // Higher strength - 4 equal pours for second phase
+            const pourSize = waterAmount * 0.15; // Each pour is 15% (67.5ml at 30g)
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+        }
+        else if (acidityLevel === 0 && strengthLevel === 2) {
+            // Standard acidity and higher strength: 6 steps
+            // Example at 30g coffee: 90ml, 180ml, 247.5ml, 315ml, 382.5ml, 450ml
+            // These correspond to 20%, 20%, 15%, 15%, 15%, 15% of total water
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            
+            // Higher strength - 4 equal pours for second phase
+            const pourSize = waterAmount * 0.15; // Each pour is 15% (67.5ml at 30g)
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+        }
+        else if (acidityLevel === 2 && strengthLevel === 0) {
+            // More acidity and standard strength: 5 steps
+            // Example at 30g coffee: 108ml, 180ml, 270ml, 360ml, 450ml
+            // These correspond to 24%, 16%, 20%, 20%, 20% of total water
+            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
+            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
+            
+            // Standard strength - 3 equal pours for second phase
+            const pourSize = waterAmount * 0.20; // Each pour is 20% (90ml at 30g)
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+        } 
+        else if (acidityLevel === 2 && strengthLevel === 1) {
+            // More acidity and lower strength: 5 steps
+            // 40% for acidity with 60/40 split, 60% for strength with 50/50 split
+            // Example at 30g coffee: ~108ml, ~180ml, ~315ml, ~450ml
+            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total
+            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total
+            
+            // Lower strength - 2 equal pours for second phase
+            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total
+            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total
+        }
+        else {
+            // Standard acidity with standard strength: 5 steps
+            // 40% for acidity with 50/50 split, 60% for strength with equal splits
+            // Example at 30g coffee: 90ml, 180ml, 270ml, 360ml, 450ml
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total
+            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total
+            
+            // Standard strength - 3 equal pours for second phase
+            const pourSize = waterAmount * 0.20; // Each pour is 20% of total
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+            amounts.push(Math.round(pourSize));
+        }
+        
+        return amounts;
+    }
+    
+    function calculateTotalAmounts(pourAmounts) {
+        const totalAmounts = [];
+        let runningTotal = 0;
+        
+        for (let amount of pourAmounts) {
+            runningTotal += amount;
+            totalAmounts.push(runningTotal);
+        }
+        
+        return totalAmounts;
     }
     
     function renderPourSteps() {
@@ -246,26 +303,26 @@ document.addEventListener('DOMContentLoaded', function() {
             stepElement.className = 'pour-step';
             stepElement.style.backgroundColor = step.color;
             
-            // Opprett fremdriftbjelken
+            // Create progress bar
             const progressBar = document.createElement('div');
             progressBar.className = 'progress-bar';
             progressBar.id = `progress-${index}`;
             
-            // Opprett innholdsbeholderen
+            // Create content container
             const content = document.createElement('div');
             content.className = 'step-content';
             
-            // Legg til mengdeinfo
+            // Add amount info
             const amount = document.createElement('div');
             amount.className = 'pour-amount';
             amount.innerHTML = `${step.total.toFixed(1)}ml. <span class="pour-detail">(${step.amount.toFixed(1)}ml.)</span>`;
             
-            // Legg til tidsinfo
+            // Add time info
             const time = document.createElement('div');
             time.className = 'pour-time';
             time.textContent = `${step.timeStart} - ${step.timeEnd}`;
             
-            // Monter elementer
+            // Assemble elements
             content.appendChild(amount);
             content.appendChild(time);
             stepElement.appendChild(progressBar);
@@ -284,13 +341,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const endMs = timeToMs(step.timeEnd);
             
             if (time < startMs) {
-                // Ikke påbegynt
+                // Not started
                 progressBar.style.height = '0%';
             } else if (time >= endMs) {
-                // Fullført
+                // Completed
                 progressBar.style.height = '100%';
             } else {
-                // Pågår
+                // In progress
                 const duration = endMs - startMs;
                 const elapsed = time - startMs;
                 const percent = Math.min(100, (elapsed / duration) * 100);
