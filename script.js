@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ratio = parseFloat(ratioInput.value) || 15;
         
         // Calculate water amount based on coffee amount
-        waterAmount = Math.round((coffeeAmount * ratio) * 10) / 10;
+        waterAmount = coffeeAmount * ratio;
         
         // Update totals
         totalCoffee.textContent = coffeeAmount.toFixed(1) + " g";
@@ -180,107 +180,143 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculatePourAmounts() {
-        // This function now calculates pour amounts by working with percentages
-        // of total water rather than directly with ml amounts
+        // This function now calculates pour amounts by working with exact percentages
+        // of total water without rounding until the end
         let amounts = [];
         
-        if (acidityLevel === 1 && strengthLevel === 0) {
+        if (acidityLevel === 1 && strengthLevel === 2) {
+            // More sweetness and higher strength: 6 steps
+            // Example at 30g coffee: 72ml, 180ml, 247.5ml, 315ml, 382.5ml, 450ml
+            
+            // First pour: 16% of total
+            amounts.push(waterAmount * 0.16); // 72ml at 30g
+            
+            // Second pour: additional 24% to reach 40% of total
+            amounts.push(waterAmount * 0.24); // 108ml at 30g to reach 180ml
+            
+            // Remaining 4 pours: each 15% of total
+            for (let i = 0; i < 4; i++) {
+                amounts.push(waterAmount * 0.15); // 67.5ml each at 30g
+            }
+        }
+        else if (acidityLevel === 1 && strengthLevel === 0) {
             // More sweetness and standard strength: 5 steps
             // Example at 30g coffee: 72ml, 180ml, 270ml, 360ml, 450ml
-            // These correspond to 16%, 24%, 20%, 20%, 20% of total water
-            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+            
+            // First pour: 16% of total
+            amounts.push(waterAmount * 0.16); // 72ml at 30g
+            
+            // Second pour: additional 24% to reach 40% of total
+            amounts.push(waterAmount * 0.24); // 108ml at 30g to reach 180ml
+            
+            // Remaining 3 pours: each 20% of total
+            for (let i = 0; i < 3; i++) {
+                amounts.push(waterAmount * 0.20); // 90ml each at 30g
+            }
         } 
         else if ((acidityLevel === 0 || acidityLevel === 1) && strengthLevel === 1) {
             // Standard/More sweetness with lower strength: 4 steps
             if (acidityLevel === 0) {
                 // Standard acidity and lower strength
                 // Example at 30g coffee: 90ml, 180ml, 315ml, 450ml
-                // These correspond to 20%, 20%, 30%, 30% of total water
-                amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
-                amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
+                
+                // First pour: 20% of total
+                amounts.push(waterAmount * 0.20); // 90ml at 30g
+                
+                // Second pour: additional 20% to reach 40% of total
+                amounts.push(waterAmount * 0.20); // 90ml at 30g to reach 180ml
             } else {
                 // More sweetness and lower strength
                 // Example at 30g coffee: 72ml, 180ml, 315ml, 450ml
-                // These correspond to 16%, 24%, 30%, 30% of total water
-                amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
-                amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
+                
+                // First pour: 16% of total
+                amounts.push(waterAmount * 0.16); // 72ml at 30g
+                
+                // Second pour: additional 24% to reach 40% of total
+                amounts.push(waterAmount * 0.24); // 108ml at 30g to reach 180ml
             }
             
-            // Lower strength - 2 equal pours for second phase
-            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total (135ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total (135ml at 30g)
+            // Remaining 2 pours: each 30% of total
+            amounts.push(waterAmount * 0.30); // 135ml at 30g
+            amounts.push(waterAmount * 0.30); // 135ml at 30g
         } 
         else if (acidityLevel === 2 && strengthLevel === 2) {
             // More acidity and higher strength: 6 steps
             // Example at 30g coffee: 108ml, 180ml, 247.5ml, 315ml, 382.5ml, 450ml
-            // These correspond to 24%, 16%, 15%, 15%, 15%, 15% of total water
-            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
             
-            // Higher strength - 4 equal pours for second phase
-            const pourSize = waterAmount * 0.15; // Each pour is 15% (67.5ml at 30g)
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
+            // First pour: 24% of total
+            amounts.push(waterAmount * 0.24); // 108ml at 30g
+            
+            // Second pour: additional 16% to reach 40% of total
+            amounts.push(waterAmount * 0.16); // 72ml at 30g to reach 180ml
+            
+            // Remaining 4 pours: each 15% of total
+            for (let i = 0; i < 4; i++) {
+                amounts.push(waterAmount * 0.15); // 67.5ml each at 30g
+            }
         }
         else if (acidityLevel === 0 && strengthLevel === 2) {
             // Standard acidity and higher strength: 6 steps
             // Example at 30g coffee: 90ml, 180ml, 247.5ml, 315ml, 382.5ml, 450ml
-            // These correspond to 20%, 20%, 15%, 15%, 15%, 15% of total water
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total (90ml at 30g)
             
-            // Higher strength - 4 equal pours for second phase
-            const pourSize = waterAmount * 0.15; // Each pour is 15% (67.5ml at 30g)
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
+            // First pour: 20% of total
+            amounts.push(waterAmount * 0.20); // 90ml at 30g
+            
+            // Second pour: additional 20% to reach 40% of total
+            amounts.push(waterAmount * 0.20); // 90ml at 30g to reach 180ml
+            
+            // Remaining 4 pours: each 15% of total
+            for (let i = 0; i < 4; i++) {
+                amounts.push(waterAmount * 0.15); // 67.5ml each at 30g
+            }
         }
         else if (acidityLevel === 2 && strengthLevel === 0) {
             // More acidity and standard strength: 5 steps
             // Example at 30g coffee: 108ml, 180ml, 270ml, 360ml, 450ml
-            // These correspond to 24%, 16%, 20%, 20%, 20% of total water
-            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total (108ml at 30g)
-            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total (72ml at 30g)
             
-            // Standard strength - 3 equal pours for second phase
-            const pourSize = waterAmount * 0.20; // Each pour is 20% (90ml at 30g)
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
+            // First pour: 24% of total
+            amounts.push(waterAmount * 0.24); // 108ml at 30g
+            
+            // Second pour: additional 16% to reach 40% of total
+            amounts.push(waterAmount * 0.16); // 72ml at 30g to reach 180ml
+            
+            // Remaining 3 pours: each 20% of total
+            for (let i = 0; i < 3; i++) {
+                amounts.push(waterAmount * 0.20); // 90ml each at 30g
+            }
         } 
         else if (acidityLevel === 2 && strengthLevel === 1) {
-            // More acidity and lower strength: 5 steps
-            // 40% for acidity with 60/40 split, 60% for strength with 50/50 split
-            // Example at 30g coffee: ~108ml, ~180ml, ~315ml, ~450ml
-            amounts.push(Math.round(waterAmount * 0.24)); // 24% of total
-            amounts.push(Math.round(waterAmount * 0.16)); // 16% of total
+            // More acidity and lower strength: 4 steps
+            // Example at 30g coffee: 108ml, 180ml, 315ml, 450ml
             
-            // Lower strength - 2 equal pours for second phase
-            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total
-            amounts.push(Math.round(waterAmount * 0.30)); // 30% of total
+            // First pour: 24% of total
+            amounts.push(waterAmount * 0.24); // 108ml at 30g
+            
+            // Second pour: additional 16% to reach 40% of total
+            amounts.push(waterAmount * 0.16); // 72ml at 30g to reach 180ml
+            
+            // Remaining 2 pours: each 30% of total
+            amounts.push(waterAmount * 0.30); // 135ml at 30g
+            amounts.push(waterAmount * 0.30); // 135ml at 30g
         }
         else {
             // Standard acidity with standard strength: 5 steps
-            // 40% for acidity with 50/50 split, 60% for strength with equal splits
             // Example at 30g coffee: 90ml, 180ml, 270ml, 360ml, 450ml
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total
-            amounts.push(Math.round(waterAmount * 0.20)); // 20% of total
             
-            // Standard strength - 3 equal pours for second phase
-            const pourSize = waterAmount * 0.20; // Each pour is 20% of total
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
-            amounts.push(Math.round(pourSize));
+            // First pour: 20% of total
+            amounts.push(waterAmount * 0.20); // 90ml at 30g
+            
+            // Second pour: additional 20% to reach 40% of total
+            amounts.push(waterAmount * 0.20); // 90ml at 30g to reach 180ml
+            
+            // Remaining 3 pours: each 20% of total
+            for (let i = 0; i < 3; i++) {
+                amounts.push(waterAmount * 0.20); // 90ml each at 30g
+            }
         }
         
-        return amounts;
+        // Round amounts only at the end to preserve decimal precision
+        return amounts.map(amount => Math.round(amount * 10) / 10);
     }
     
     function calculateTotalAmounts(pourAmounts) {
@@ -289,7 +325,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         for (let amount of pourAmounts) {
             runningTotal += amount;
-            totalAmounts.push(runningTotal);
+            // Round to 1 decimal place to handle potential floating point issues
+            totalAmounts.push(Math.round(runningTotal * 10) / 10);
         }
         
         return totalAmounts;
